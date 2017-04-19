@@ -5,9 +5,10 @@
 ;; Views
 
 (defn square []
-  [:button.square
-   ;; TODO
-   ])
+  (let [value (reagent/atom nil)]
+    (fn []
+      [:button.square {:on-click #(reset! value "X")}
+       @value])))
 
 (defn board []
   (letfn [(render-square [i]
