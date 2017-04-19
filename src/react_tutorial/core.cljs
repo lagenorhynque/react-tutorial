@@ -16,17 +16,17 @@
       [:div
        [:div.status status]
        [:div.board-row
-        [render-square 0]
-        [render-square 1]
-        [render-square 2]]
+        (render-square 0)
+        (render-square 1)
+        (render-square 2)]
        [:div.board-row
-        [render-square 3]
-        [render-square 4]
-        [render-square 5]]
+        (render-square 3)
+        (render-square 4)
+        (render-square 5)]
        [:div.board-row
-        [render-square 6]
-        [render-square 7]
-        [render-square 8]]])))
+        (render-square 6)
+        (render-square 7)
+        (render-square 8)]])))
 
 (defn game []
   [:div.game
