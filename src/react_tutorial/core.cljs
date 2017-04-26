@@ -1,5 +1,6 @@
 (ns react-tutorial.core
-    (:require [reagent.core :as reagent]))
+  (:require [reagent.core :as reagent]
+            [clojure.string :as str]))
 
 ;; -------------------------
 ;; Views
@@ -45,7 +46,8 @@
       (render-square 8)]]))
 
 (defn game []
-  (let [state (reagent/atom {:history [{:squares (vec (repeat 9 nil))}]
+  (let [state (reagent/atom {:history [{:squares (vec (repeat 9 nil))
+                                        :i nil}]
                              :x-is-next? true
                              :step-number 0})]
     (letfn [(handle-click [i]
@@ -60,13 +62,16 @@
                                         {:squares (assoc
                                                    squares
                                                    i
-                                                   (if x-is-next? "X" "O"))})
+                                                   (if x-is-next? "X" "O"))
+                                         :i i})
                          :x-is-next? (not x-is-next?)
                          :step-number (count history)))))
             (jump-to [step]
               (swap! state assoc
                      :x-is-next? (even? step)
-                     :step-number step))]
+                     :step-number step))
+            (calculate-location [i]
+              (map (comp inc Math/floor) [(/ i 3) (mod i 3)]))]
       (fn []
         (let [history (:history @state)
               current (nth history (:step-number @state))
@@ -75,10 +80,14 @@
                        (str "Winner: " winner)
                        (str "Next player: "
                             (if (:x-is-next? @state) "X" "O")))
-              moves (map-indexed (fn [move _]
+              moves (map-indexed (fn [move {:keys [i]}]
                                    (let [desc (if (zero? move)
                                                 (str "Game start")
-                                                (str "Move #" move))]
+                                                (str "Move #("
+                                                     (str/join
+                                                      ", "
+                                                      (calculate-location i))
+                                                     ")"))]
                                      [:li {:key move}
                                       [:a {:href "#"
                                            :on-click #(jump-to move)}
