@@ -74,7 +74,8 @@
               (map (comp inc Math/floor) [(/ i 3) (mod i 3)]))]
       (fn []
         (let [history (:history @state)
-              current (nth history (:step-number @state))
+              selected (:step-number @state)
+              current (nth history selected)
               winner (calculate-winner (:squares current))
               status (if winner
                        (str "Winner: " winner)
@@ -88,7 +89,9 @@
                                                       ", "
                                                       (calculate-location i))
                                                      ")"))]
-                                     [:li {:key move}
+                                     [:li {:key move
+                                           :class (when (= move selected)
+                                                    "move-selected")}
                                       [:a {:href "#"
                                            :on-click #(jump-to move)}
                                        desc]]))
