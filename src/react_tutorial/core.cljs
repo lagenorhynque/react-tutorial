@@ -31,19 +31,11 @@
             [square
              :value (squares i)
              :on-click #(on-click i)])]
-    [:div
-     [:div.board-row
-      (render-square 0)
-      (render-square 1)
-      (render-square 2)]
-     [:div.board-row
-      (render-square 3)
-      (render-square 4)
-      (render-square 5)]
-     [:div.board-row
-      (render-square 6)
-      (render-square 7)
-      (render-square 8)]]))
+    (into [:div]
+          (->> (range 9)
+               (map #(render-square %))
+               (partition 3)
+               (map #(into [:div.board-row] %))))))
 
 (defn game []
   (let [state (reagent/atom {:history [{:squares (vec (repeat 9 nil))
