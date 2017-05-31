@@ -41,7 +41,8 @@
   (let [state (reagent/atom {:history [{:squares (vec (repeat 9 nil))
                                         :i nil}]
                              :x-is-next? true
-                             :step-number 0})]
+                             :step-number 0
+                             :order-asc? true})]
     (letfn [(handle-click [i]
               (let [{:keys [history x-is-next? step-number]} @state
                     history (vec (take (inc step-number) history))
@@ -63,7 +64,10 @@
                      :x-is-next? (even? step)
                      :step-number step))
             (calculate-location [i]
-              (map (comp inc Math/floor) [(/ i 3) (mod i 3)]))]
+              (map (comp inc Math/floor) [(/ i 3) (mod i 3)]))
+            (flip-sort-order [order-asc?]
+              (swap! state assoc
+                     :order-asc? (not order-asc?)))]
       (fn []
         (let [history (:history @state)
               selected (:step-number @state)
@@ -73,6 +77,11 @@
                        (str "Winner: " winner)
                        (str "Next player: "
                             (if (:x-is-next? @state) "X" "O")))
+              order-asc? (:order-asc? @state)
+              sort (fn []
+                     [:a {:href "#"
+                          :on-click #(flip-sort-order order-asc?)}
+                      (if order-asc? "↓" "↑")])
               moves (map-indexed (fn [move {:keys [i]}]
                                    (let [desc (if (zero? move)
                                                 (str "Game start")
@@ -96,8 +105,12 @@
            [:div.game-info
             [:div
              status]
+            [:div
+             [sort]]
             [:ol
-             moves]]])))))
+             (if order-asc?
+               moves
+               (reverse moves))]]])))))
 
 (defn home-page []
   [game])
