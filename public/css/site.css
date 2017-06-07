@@ -52,3 +52,7 @@ ol, ul {
 .move-selected {
     font-weight: bold;
 }
+
+.win-square {
+    background-color: #FFA500;
+}

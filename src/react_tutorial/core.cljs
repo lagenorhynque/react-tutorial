@@ -5,8 +5,10 @@
 ;; -------------------------
 ;; Views
 
-(defn square [& {:keys [value on-click]}]
-  [:button.square {:on-click on-click}
+(defn square [& {:keys [value on-click win?]}]
+  [:button.square {:on-click on-click
+                   :class (when win?
+                            "win-square")}
    value])
 
 (defn calculate-winner [squares]
@@ -18,19 +20,20 @@
                [2 5 8]
                [0 4 8]
                [2 4 6]]]
-    (reduce (fn [_ [a b c]]
+    (reduce (fn [_ [a b c :as win-ps]]
               (when (and (squares a)
                          (= (squares a) (squares b))
                          (= (squares a) (squares c)))
-                (reduced (squares a))))
+                (reduced [(squares a) win-ps])))
             nil
             lines)))
 
-(defn board [& {:keys [squares on-click]}]
+(defn board [& {:keys [squares on-click win-ps]}]
   (letfn [(render-square [i]
             [square
              :value (squares i)
-             :on-click #(on-click i)])]
+             :on-click #(on-click i)
+             :win? (some #(= i %) win-ps)])]
     (into [:div]
           (->> (range 9)
                (map #(render-square %))
@@ -72,7 +75,7 @@
         (let [history (:history @state)
               selected (:step-number @state)
               current (nth history selected)
-              winner (calculate-winner (:squares current))
+              [winner win-ps] (calculate-winner (:squares current))
               status (if winner
                        (str "Winner: " winner)
                        (str "Next player: "
@@ -101,7 +104,8 @@
            [:div.game-board
             [board
              :squares (:squares current)
-             :on-click handle-click]]
+             :on-click handle-click
+             :win-ps win-ps]]
            [:div.game-info
             [:div
              status]
