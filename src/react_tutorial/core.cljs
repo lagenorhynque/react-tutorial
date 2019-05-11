@@ -2,14 +2,13 @@
   (:require [goog.dom :as gdom]
             [reagent.core :as reagent]))
 
-(defn square []
+(defn square [& {:keys [value]}]
   [:button.square
-   ;; TODO
-   ])
+   value])
 
 (defn board []
   (letfn [(render-square [i]
-            [square])]
+            [square :value i])]
     (let [status "Next player: X"]
       [:div
        [:div.status status]
