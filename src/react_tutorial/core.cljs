@@ -7,15 +7,22 @@
    value])
 
 (defn board []
-  (let [state (reagent/atom {:squares (vec (repeat 9 nil))})]
+  (let [state (reagent/atom {:squares (vec (repeat 9 nil))
+                             :x-is-next? true})]
     (letfn [(handle-click [i]
-              (swap! state assoc-in [:squares i] "X"))
+              (let [{:keys [x-is-next?]} @state]
+                (swap! state #(-> %
+                                  (assoc-in [:squares i]
+                                            (if x-is-next? "X" "O"))
+                                  (assoc :x-is-next?
+                                         (not x-is-next?))))))
             (render-square [i]
               [square
                :value (get-in @state [:squares i])
                :on-click #(handle-click i)])]
       (fn []
-        (let [status "Next player: X"]
+        (let [status (str "Next player: "
+                          (if (:x-is-next? @state) "X" "O"))]
           [:div
            [:div.status status]
            [:div.board-row
