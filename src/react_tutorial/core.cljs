@@ -2,30 +2,34 @@
   (:require [goog.dom :as gdom]
             [reagent.core :as reagent]))
 
-(defn square []
-  (let [value (reagent/atom nil)]
-    (fn []
-      [:button.square {:on-click #(reset! value "X")}
-       @value])))
+(defn square [& {:keys [value on-click]}]
+  [:button.square {:on-click on-click}
+   value])
 
 (defn board []
-  (letfn [(render-square [i]
-            [square])]
-    (let [status "Next player: X"]
-      [:div
-       [:div.status status]
-       [:div.board-row
-        (render-square 0)
-        (render-square 1)
-        (render-square 2)]
-       [:div.board-row
-        (render-square 3)
-        (render-square 4)
-        (render-square 5)]
-       [:div.board-row
-        (render-square 6)
-        (render-square 7)
-        (render-square 8)]])))
+  (let [state (reagent/atom {:squares (vec (repeat 9 nil))})]
+    (letfn [(handle-click [i]
+              (swap! state assoc-in [:squares i] "X"))
+            (render-square [i]
+              [square
+               :value (get-in @state [:squares i])
+               :on-click #(handle-click i)])]
+      (fn []
+        (let [status "Next player: X"]
+          [:div
+           [:div.status status]
+           [:div.board-row
+            (render-square 0)
+            (render-square 1)
+            (render-square 2)]
+           [:div.board-row
+            (render-square 3)
+            (render-square 4)
+            (render-square 5)]
+           [:div.board-row
+            (render-square 6)
+            (render-square 7)
+            (render-square 8)]])))))
 
 (defn game []
   [:div.game
