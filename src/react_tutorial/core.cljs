@@ -1,26 +1,48 @@
 (ns ^:figwheel-hooks react-tutorial.core
-  (:require
-   [goog.dom :as gdom]
-   [reagent.core :as reagent :refer [atom]]))
+  (:require [goog.dom :as gdom]
+            [reagent.core :as reagent]))
 
-(println "This text is printed from src/react_tutorial/core.cljs. Go ahead and edit it and see reloading in action.")
+(defn square []
+  [:button.square
+   ;; TODO
+   ])
 
-(defn multiply [a b] (* a b))
+(defn board []
+  (letfn [(render-square [i]
+            [square])]
+    (let [status "Next player: X"]
+      [:div
+       [:div.status status]
+       [:div.board-row
+        (render-square 0)
+        (render-square 1)
+        (render-square 2)]
+       [:div.board-row
+        (render-square 3)
+        (render-square 4)
+        (render-square 5)]
+       [:div.board-row
+        (render-square 6)
+        (render-square 7)
+        (render-square 8)]])))
 
-
-;; define your app data so that it doesn't get over-written on reload
-(defonce app-state (atom {:text "Hello world!"}))
+(defn game []
+  [:div.game
+   [:div.game-board
+    [board]]
+   [:div.game-info
+    [:div
+     ;; status
+     ]
+    [:ol
+     ;; TODO
+     ]]])
 
 (defn get-app-element []
   (gdom/getElement "app"))
 
-(defn hello-world []
-  [:div
-   [:h1 (:text @app-state)]
-   [:h3 "Edit this in src/react_tutorial/core.cljs and watch it change!"]])
-
 (defn mount [el]
-  (reagent/render-component [hello-world] el))
+  (reagent/render-component [game] el))
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]
@@ -36,4 +58,4 @@
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
-)
+  )
