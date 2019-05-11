@@ -1,6 +1,6 @@
 # react-tutorial
 
-FIXME: Write a one-line description of your library/project.
+cf. https://facebook.github.io/react/tutorial/tutorial.html
 
 ## Overview
 
