@@ -1,108 +1,39 @@
-(ns react-tutorial.core
-    (:require [reagent.core :as reagent]))
+(ns ^:figwheel-hooks react-tutorial.core
+  (:require
+   [goog.dom :as gdom]
+   [reagent.core :as reagent :refer [atom]]))
 
-;; -------------------------
-;; Views
+(println "This text is printed from src/react_tutorial/core.cljs. Go ahead and edit it and see reloading in action.")
 
-(defn square [& {:keys [value on-click]}]
-  [:button.square {:on-click on-click}
-   value])
+(defn multiply [a b] (* a b))
 
-(defn calculate-winner [squares]
-  (let [lines [[0 1 2]
-               [3 4 5]
-               [6 7 8]
-               [0 3 6]
-               [1 4 7]
-               [2 5 8]
-               [0 4 8]
-               [2 4 6]]]
-    (reduce (fn [_ [a b c]]
-              (when (and (squares a)
-                         (= (squares a) (squares b))
-                         (= (squares a) (squares c)))
-                (reduced (squares a))))
-            nil
-            lines)))
 
-(defn board [& {:keys [squares on-click]}]
-  (letfn [(render-square [i]
-            [square
-             :value (squares i)
-             :on-click #(on-click i)])]
-    [:div
-     [:div.board-row
-      (render-square 0)
-      (render-square 1)
-      (render-square 2)]
-     [:div.board-row
-      (render-square 3)
-      (render-square 4)
-      (render-square 5)]
-     [:div.board-row
-      (render-square 6)
-      (render-square 7)
-      (render-square 8)]]))
+;; define your app data so that it doesn't get over-written on reload
+(defonce app-state (atom {:text "Hello world!"}))
 
-(defn game []
-  (let [state (reagent/atom {:history [{:squares (vec (repeat 9 nil))}]
-                             :x-is-next? true
-                             :step-number 0})]
-    (letfn [(handle-click [i]
-              (let [{:keys [history x-is-next? step-number]} @state
-                    history (vec (take (inc step-number) history))
-                    current (nth history (dec (count history)))
-                    squares (:squares current)]
-                (when-not (or (calculate-winner squares)
-                              (squares i))
-                  (swap! state assoc
-                         :history (conj history
-                                        {:squares (assoc
-                                                   squares
-                                                   i
-                                                   (if x-is-next? "X" "O"))})
-                         :x-is-next? (not x-is-next?)
-                         :step-number (count history)))))
-            (jump-to [step]
-              (swap! state assoc
-                     :x-is-next? (even? step)
-                     :step-number step))]
-      (fn []
-        (let [history (:history @state)
-              current (nth history (:step-number @state))
-              winner (calculate-winner (:squares current))
-              status (if winner
-                       (str "Winner: " winner)
-                       (str "Next player: "
-                            (if (:x-is-next? @state) "X" "O")))
-              moves (map-indexed (fn [move _]
-                                   (let [desc (if (zero? move)
-                                                (str "Game start")
-                                                (str "Move #" move))]
-                                     [:li {:key move}
-                                      [:a {:href "#"
-                                           :on-click #(jump-to move)}
-                                       desc]]))
-                                 history)]
-          [:div.game
-           [:div.game-board
-            [board
-             :squares (:squares current)
-             :on-click handle-click]]
-           [:div.game-info
-            [:div
-             status]
-            [:ol
-             moves]]])))))
+(defn get-app-element []
+  (gdom/getElement "app"))
 
-(defn home-page []
-  [game])
+(defn hello-world []
+  [:div
+   [:h1 (:text @app-state)]
+   [:h3 "Edit this in src/react_tutorial/core.cljs and watch it change!"]])
 
-;; -------------------------
-;; Initialize app
+(defn mount [el]
+  (reagent/render-component [hello-world] el))
 
-(defn mount-root []
-  (reagent/render [home-page] (.getElementById js/document "app")))
+(defn mount-app-element []
+  (when-let [el (get-app-element)]
+    (mount el)))
 
-(defn init! []
-  (mount-root))
+;; conditionally start your application based on the presence of an "app" element
+;; this is particularly helpful for testing this ns without launching the app
+(mount-app-element)
+
+;; specify reload hook with ^;after-load metadata
+(defn ^:after-load on-reload []
+  (mount-app-element)
+  ;; optionally touch your app-state to force rerendering depending on
+  ;; your application
+  ;; (swap! app-state update-in [:__figwheel_counter] inc)
+)

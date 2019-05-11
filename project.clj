@@ -1,56 +1,23 @@
 (defproject react-tutorial "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "FIXME: write this!"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.946" :scope "provided"]
-                 [reagent "0.7.0"]]
+  :min-lein-version "2.7.1"
 
-  :plugins [[lein-cljsbuild "1.1.7"]
-            [lein-figwheel "0.5.14"]]
+  :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.clojure/clojurescript "1.10.339"]
+                 [reagent "0.8.1"]]
 
-  :min-lein-version "2.5.0"
+  :source-paths ["src"]
 
-  :jvm-opts ["--add-modules" "java.xml.bind"]
+  :aliases {"fig"       ["trampoline" "run" "-m" "figwheel.main"]
+            "fig:build" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]
+            "fig:min"   ["run" "-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]
+            "fig:test"  ["run" "-m" "figwheel.main" "-co" "test.cljs.edn" "-m" react-tutorial.test-runner]}
 
-  :clean-targets ^{:protect false}
-  [:target-path
-   [:cljsbuild :builds :app :compiler :output-dir]
-   [:cljsbuild :builds :app :compiler :output-to]
-   [:cljsbuild :builds :release :compiler :output-dir]]
+  :profiles {:dev {:dependencies [[com.bhauman/figwheel-main "0.1.9"]
+                                  [com.bhauman/rebel-readline-cljs "0.1.4"]]
+                   }})
 
-  :resource-paths ["public"]
-
-  :figwheel {:http-server-root "."
-             :nrepl-port 7002
-             :nrepl-middleware ["cemerick.piggieback/wrap-cljs-repl"]
-             :css-dirs ["public/css"]}
-
-  :cljsbuild {:builds {:app
-                       {:source-paths ["src" "env/dev/cljs"]
-                        :compiler
-                        {:main "react-tutorial.dev"
-                         :output-to "public/js/app.js"
-                         :output-dir "public/js/out"
-                         :asset-path   "js/out"
-                         :source-map true
-                         :optimizations :none
-                         :pretty-print  true}
-                        :figwheel
-                        {:open-urls ["http://localhost:3449/index.html"]}}
-                       :release
-                       {:source-paths ["src" "env/prod/cljs"]
-                        :compiler
-                        {:output-to "public/js/app.js"
-                         :output-dir "public/js/release"
-                         :asset-path   "js/out"
-                         :optimizations :advanced
-                         :pretty-print false}}}}
-
-  :aliases {"release" ["do" "clean" ["cljsbuild" "once" "release"]]}
-
-  :profiles {:dev {:dependencies [[figwheel-sidecar "0.5.14"]
-                                  [org.clojure/tools.nrepl "0.2.13"]
-                                  [com.cemerick/piggieback "0.2.2"]]}})
