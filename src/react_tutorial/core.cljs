@@ -44,9 +44,11 @@
 
 (defn game []
   (let [state (reagent/atom {:history [{:squares (vec (repeat 9 nil))}]
-                             :x-is-next? true})]
+                             :x-is-next? true
+                             :step-number 0})]
     (letfn [(handle-click [i]
-              (let [{:keys [history x-is-next?]} @state
+              (let [{:keys [history x-is-next? step-number]} @state
+                    history (vec (take (inc step-number) history))
                     current (nth history (dec (count history)))
                     squares (:squares current)]
                 (when-not (or (calculate-winner squares)
@@ -55,10 +57,15 @@
                          :history (conj history
                                         {:squares
                                          (assoc squares i (if x-is-next? "X" "O"))})
-                         :x-is-next? (not x-is-next?)))))]
+                         :x-is-next? (not x-is-next?)
+                         :step-number (count history)))))
+            (jump-to [step]
+              (swap! state assoc
+                     :x-is-next? (even? step)
+                     :step-number step))]
       (fn []
-        (let [{:keys [history x-is-next?]} @state
-              current (nth history (dec (count history)))
+        (let [{:keys [history x-is-next? step-number]} @state
+              current (nth history step-number)
               winner (calculate-winner (:squares current))
               status (if winner
                        (str "Winner: " winner)
@@ -67,7 +74,7 @@
                                    (let [desc (if (zero? move)
                                                 (str "Go to game start")
                                                 (str "Go to move #" move))]
-                                     [:li
+                                     [:li {:key move}
                                       [:button {:on-click #(jump-to move)}
                                        desc]]))
                                  history)]
