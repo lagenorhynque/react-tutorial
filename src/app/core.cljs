@@ -1,6 +1,7 @@
-(ns ^:figwheel-hooks react-tutorial.core
-  (:require [goog.dom :as gdom]
-            [reagent.core :as reagent]))
+(ns app.core
+  "This namespace contains your application and is the entrypoint for 'yarn start'."
+  (:require
+   [reagent.core :as reagent]))
 
 (defn square [& {:keys [value on-click]}]
   [:button.square {:on-click on-click}
@@ -89,24 +90,12 @@
             [:ol
              moves]]])))))
 
-(defn get-app-element []
-  (gdom/getElement "app"))
+(defn ^:dev/after-load render
+  "Render the toplevel component for this app."
+  []
+  (reagent/render [game] (.getElementById js/document "app")))
 
-(defn mount [el]
-  (reagent/render-component [game] el))
-
-(defn mount-app-element []
-  (when-let [el (get-app-element)]
-    (mount el)))
-
-;; conditionally start your application based on the presence of an "app" element
-;; this is particularly helpful for testing this ns without launching the app
-(mount-app-element)
-
-;; specify reload hook with ^;after-load metadata
-(defn ^:after-load on-reload []
-  (mount-app-element)
-  ;; optionally touch your app-state to force rerendering depending on
-  ;; your application
-  ;; (swap! app-state update-in [:__figwheel_counter] inc)
-  )
+(defn ^:export main
+  "Run application startup logic."
+  []
+  (render))
