@@ -63,7 +63,15 @@
               winner (calculate-winner (:squares current))
               status (if winner
                        (str "Winner: " winner)
-                       (str "Next player: " (if x-is-next? "X" "O")))]
+                       (str "Next player: " (if x-is-next? "X" "O")))
+              moves (map-indexed (fn [move _]
+                                   (let [desc (if (zero? move)
+                                                (str "Go to game start")
+                                                (str "Go to move #" move))]
+                                     [:li
+                                      [:button {:on-click #(jump-to move)}
+                                       desc]]))
+                                 history)]
           [:div.game
            [:div.game-board
             [board
@@ -73,8 +81,7 @@
             [:div
              status]
             [:ol
-             ;; TODO
-             ]]])))))
+             moves]]])))))
 
 (defn ^:dev/after-load render
   "Render the toplevel component for this app."
